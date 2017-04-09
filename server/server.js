@@ -14,6 +14,30 @@ let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
 
+/*
+ *
+ * todo Challenges
+ * - Case insensitive room names
+ * - Unique user name for chat room
+ * - Room list at join page (dropdown)
+ *
+ * todo Goals - 1
+ * - Colorpicker for user
+ * - Password secured rooms
+ * - Hidden rooms
+ *
+ * todo Goals - 2
+ * - Add custom BEM design
+ * - Add emojis
+ * - Add menu (desktop/mobile)
+ *
+ * todo Goals - 3
+ * - Add whisper (dropdown)
+ * - Add authentication (user sign up/login)
+ * - Is typing (debounced)
+ *
+ */
+
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
