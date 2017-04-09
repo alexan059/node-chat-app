@@ -4,7 +4,8 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
-const {isRealString} = require('./utils/validation');
+const {isValidString, isRealString} = require('./utils/validation');
+const {makeCaseInsensitive} = require('./utils/string');
 const {Users} = require('./utils/users');
 
 const publicPath = path.join(__dirname, '../public');
@@ -14,47 +15,26 @@ let server = http.createServer(app);
 let io = socketIO(server);
 let users = new Users();
 
-/*
- *
- * todo Challenges
- * - Case insensitive room names
- * - Unique user name for chat room
- * - Room list at join page (dropdown)
- *
- * todo Goals - 1
- * - Colorpicker for user
- * - Password secured rooms
- * - Hidden rooms
- *
- * todo Goals - 2
- * - Add custom BEM design
- * - Add emojis
- * - Add menu (desktop/mobile)
- *
- * todo Goals - 3
- * - Add whisper (dropdown)
- * - Add authentication (user sign up/login)
- * - Is typing (debounced)
- *
- */
-
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
     socket.on('join', (params, callback) => {
-        if (!isRealString(params.name) || !isRealString(params.room)) {
+
+        if (!isValidString(params.name) || !isValidString(params.room)) {
             return callback('Name and room name are required.');
         }
 
-        console.log(`New user "${params.name}" has connected to room "${params.room}".`);
+        let room = makeCaseInsensitive(params.room);
 
-        socket.join(params.room);
+        console.log(`New user "${params.name}" has connected to room "${room}".`);
+
+        socket.join(room);
         users.removeUser(socket.id); // Remove user if already registered in another room
-        users.addUser(socket.id, params.name, params.room);
+        users.addUser(socket.id, params.name, room);
 
-        io.to(params.room).emit('updateUserList', users.getUserList(params.room));
+        io.to(room).emit('updateUserList', users.getUserList(room));
         socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
-        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+        socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
 
         callback();
     });
