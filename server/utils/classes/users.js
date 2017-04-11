@@ -1,4 +1,5 @@
 class Users {
+
     constructor() {
         this.users = [];
     }
@@ -27,6 +28,7 @@ class Users {
             .filter((user) => user.room === room)
             .map((user) => user.name);
     }
+
 }
 
 module.exports = {Users};

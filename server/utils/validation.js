@@ -3,6 +3,10 @@ let isRealString = (str) => {
 };
 
 let isValidString = (str) => {
+    if (!str) {
+        return false;
+    }
+
     if (str.match(/([0-9A-Za-z_-])+/) === null) {
         return false;
     }
