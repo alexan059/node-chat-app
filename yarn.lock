@@ -2682,6 +2682,10 @@ supports-color@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-2.0.0.tgz#535d045ce6b6363fa40117084629995e9df324c7"
 
+sweetalert2@^6.6.0:
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-6.6.0.tgz#dd6c3d7dc42c94b352671ac4bb9e06785aba6b50"
+
 tapable@^0.2.5, tapable@~0.2.5:
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-0.2.6.tgz#206be8e188860b514425375e6f1ae89bfb01fd8d"

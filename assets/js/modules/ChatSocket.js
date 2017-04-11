@@ -2,6 +2,7 @@ import $ from 'jquery';
 import io from 'socket.io-client';
 import Mustache from 'mustache';
 import moment from 'moment';
+import swal from 'sweetalert2';
 
 import '../libs/deparam';
 
@@ -40,8 +41,10 @@ class ChatSocket {
         this.emitJoin(params)
             .then((message) => console.log(message))
             .catch((error) => {
-                alert(error);
-                window.location.href = '/';
+                swal({
+                    text: error,
+                    onClose: () => window.location.href = '/'
+                })
             })
     }
 
@@ -126,7 +129,7 @@ class ChatSocket {
 
         that.getLocation()
             .then((position) => that.emitLocation(position))
-            .catch((error) => alert(error))
+            .catch((error) => swal(error))
             .then(() => that.locationButton.removeAttr('disabled').text('Send location'));
     }
 
