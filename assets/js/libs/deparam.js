@@ -1,3 +1,5 @@
+import jQuery from 'jquery';
+
 /**
  * jQuery.deparam - The oposite of jQuery param. Creates an object of query string parameters.
  *
@@ -9,7 +11,7 @@
             if(uri === undefined){
                 uri = window.location.search;
             }
-            var queryString = {};
+            let queryString = {};
             uri.replace(
                 new RegExp(
                     "([^?=&]+)(=([^&#]*))?", "g"),

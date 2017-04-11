@@ -14,7 +14,7 @@ const sockets = (server) => {
     io.on('connection', (socket) => {
         socket.on('join', (params, callback) => {
 
-            if (!isValidString(params.name) || !isValidString(params.room)) {
+            if (!params || !isValidString(params.name) || !isValidString(params.room)) {
                 return callback('Name and room name are required.');
             }
 
@@ -43,12 +43,14 @@ const sockets = (server) => {
             callback();
         });
 
-        socket.on('createLocationMessage', (coords) => {
+        socket.on('createLocationMessage', (coords, callback) => {
             let user = users.getUser(socket.id);
 
             if (user) {
                 io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
             }
+
+            callback();
         });
 
         socket.on('disconnect', () => {
