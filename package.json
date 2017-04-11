@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
+    "watch": "nodemon server/server.js",
     "test": "mocha server/**/*.test.js",
     "test-watch": "nodemon --exec \"yarn run test\"",
     "build": "webpack"

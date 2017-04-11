@@ -29197,7 +29197,7 @@ var ChatSocket = function () {
     function ChatSocket() {
         _classCallCheck(this, ChatSocket);
 
-        this.socket = (0, _socket2.default)();
+        this.socket = (0, _socket2.default)('/chat');
 
         this.messageTemplate = (0, _jquery2.default)('#message-template').html();
         this.locationTemplate = (0, _jquery2.default)('#location-message-template').html();
