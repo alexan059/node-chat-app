@@ -6,11 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scaleable=no">
   <title>Join | ChatApp</title>
 
+  <link rel="stylesheet" href="/css/selectize.default.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="centered-form">
+
   <div class="centered-form__form">
-    <form action="/chat.html">
+    <form action="/chat">
       <div class="form-field">
         <h3>Join Chat</h3>
       </div>
@@ -20,12 +22,14 @@
       </div>
       <div class="form-field">
         <label>Room name</label>
-        <input type="text" name="room">
+        <select name="room"></select>
       </div>
       <div class="form-field">
         <button>Join</button>
       </div>
     </form>
   </div>
+
+  <script src="js/lobby.bundle.js"></script>
 </body>
 </html>

@@ -1,7 +1,10 @@
 var path = require('path');
 
 module.exports = {
-    entry: './assets/js/chat.js',
+    entry: {
+        chat: './assets/js/chat.js',
+        lobby: './assets/js/lobby.js'
+    },
     output: {
         filename: '[name].bundle.js',
         path: path.resolve(__dirname, './public/js')

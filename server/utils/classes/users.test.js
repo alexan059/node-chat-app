@@ -13,16 +13,16 @@ describe('Users', () => {
             name: 'Mike',
             room: 'office'
         },
-        {
-            id: '2',
-            name: 'Jen',
-            room: 'course'
-        },
-        {
-            id: '3',
-            name: 'Bill',
-            room: 'course'
-        }];
+            {
+                id: '2',
+                name: 'Jen',
+                room: 'course'
+            },
+            {
+                id: '3',
+                name: 'Bill',
+                room: 'course'
+            }];
     });
 
     it('should add new user', () => {
@@ -78,6 +78,22 @@ describe('Users', () => {
         let userList = users.getUserList('office');
 
         expect(userList).toEqual(['Mike']);
+    });
+
+    it('should return all connected rooms without duplicates', () => {
+        let user = {
+            id: '4',
+            name: 'John',
+            room: 'course'
+        };
+
+        users.addUser(user.id, user.name, user.room);
+
+        let roomList = users.getRoomList();
+
+        expect(roomList).toInclude('office');
+        expect(roomList).toInclude('course');
+        expect(roomList.length).toBe(2);
     });
 
 });

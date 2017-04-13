@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server/server.js",
+    "watch": "nodemon server/server.js",
     "test": "mocha server/**/*.test.js",
     "test-watch": "nodemon --exec \"yarn run test\"",
     "build": "webpack"
@@ -15,8 +16,10 @@
   "dependencies": {
     "express": "^4.15.2",
     "jquery": "^3.2.1",
+    "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "mustache": "^2.3.0",
+    "selectize": "^0.12.4",
     "socket.io": "^1.7.3",
     "socket.io-client": "^1.7.3",
     "sweetalert2": "^6.6.0"

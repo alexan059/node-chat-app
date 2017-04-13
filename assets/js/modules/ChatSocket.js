@@ -10,7 +10,7 @@ import '../libs/deparam';
 class ChatSocket {
 
     constructor() {
-        this.socket = io();
+        this.socket = io('/chat');
 
         this.messageTemplate = $('#message-template').html();
         this.locationTemplate = $('#location-message-template').html();
