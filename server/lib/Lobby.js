@@ -1,9 +1,11 @@
+const Rooms = require('./Rooms');
+
 class Lobby {
 
-    constructor(io, namespace, users) {
+    constructor(io) {
         this.io = io;
-        this.lobby = io.of(namespace);
-        this.users = users;
+        this.lobby = io.of('/lobby');
+        this.rooms = Rooms.getInstance();
 
         this.onCreate();
     }
@@ -14,7 +16,7 @@ class Lobby {
 
     onConnection(socket) {
         this.socket = socket;
-        this.updateRoomList(this.users.getRoomList());
+        this.updateRoomList(this.rooms.getRooms());
         this.events();
     }
 

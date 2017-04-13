@@ -1,15 +1,17 @@
+const {isRealString} = require('../utils/validation');
 const {generateMessage, generateLocationMessage} = require('../utils/message');
-const {isValidString, isRealString} = require('../utils/validation');
 
-const {Rooms} = require('../utils/classes/rooms');
+const {Room} = require('../models/Room');
+const Rooms = require('./Rooms');
 
 class Chat {
 
-    constructor(io, namespace, users, lobby) {
+    constructor(io, lobby) {
         this.io = io;
-        this.chat = io.of(namespace);
-        this.users = users;
+        this.chat = io.of('/chat');
         this.lobby = lobby;
+
+        this.rooms = Rooms.getInstance();
 
         this.onCreate();
     }
@@ -32,60 +34,60 @@ class Chat {
 
     onJoin(params, callback) {
 
-        console.log(params);
-
-        if (!isValidString(params.name) || !isValidString(params.room)) {
-            return callback('Name and room name are required.');
+        if (!Rooms.allFieldsAreValid(params.name, params.room)) {
+            return callback('Name and room name are not valid.');
         }
 
-        let room = Rooms.sanitizeName(params.room);
+        let room = this.rooms.registerUser(this.socket.id, params.name, params.room, params.hidden);
+        let roomName = room.name;
 
-        console.log(`New user "${params.name}" has connected to room "${room}".`);
+        this.socket.join(roomName);
 
-        this.socket.join(room);
-        this.users.removeUser(this.socket.id); // Remove user if already registered in another room
-        this.users.addUser(this.socket.id, params.name, room);
+        this.chat.to(roomName).emit('updateUserList', this.rooms.getUsers(roomName));
 
-        this.chat.to(room).emit('updateUserList', this.users.getUserList(room));
-
-        this.lobby.updateRoomList(this.users.getRoomList());
+        this.lobby.updateRoomList(this.rooms.getRooms()); // Todo refactor using event listener
 
         this.socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
-        this.socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+        this.socket.broadcast.to(roomName).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
 
+        // Log the message
+        console.log(`New user "${params.name}" has connected to room "${roomName}".`);
+
+        // Callback on client
         callback();
     }
 
     onCreateMessage(message, callback) {
-        let user = this.users.getUser(this.socket.id);
+        let user = this.rooms.getUser(this.socket.id);
 
         if (user && isRealString(message.text)) {
-            this.chat.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+            this.chat.to(user.room.name).emit('newMessage', generateMessage(user.name, message.text));
         }
 
         callback();
     }
 
     onLocationMessage(coords, callback) {
-        let user = this.users.getUser(this.socket.id);
+        let user = this.rooms.getUser(this.socket.id);
 
         if (user) {
-            this.chat.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+            this.chat.to(user.room.name).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
         }
 
         callback();
     }
 
     onDisconnect() {
-        let user = this.users.removeUser(this.socket.id);
+        let user = this.rooms.unregisterUser(this.socket.id);
 
         if (user) {
-            console.log(`User "${user.name}" has disconnected from the room "${user.room}"`);
 
-            this.chat.to(user.room).emit('updateUserList', this.users.getUserList(user.room));
-            this.chat.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+            this.chat.to(user.room.name).emit('updateUserList', this.rooms.getUsers(user.room.name));
+            this.chat.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
 
-            this.lobby.updateRoomList(this.users.getRoomList());
+            this.lobby.updateRoomList(this.rooms.getRooms());
+
+            console.log(`User "${user.name}" has disconnected from the room "${user.room.name}"`);
         }
     }
 }

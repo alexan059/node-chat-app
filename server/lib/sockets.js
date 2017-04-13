@@ -2,12 +2,12 @@ const socketio = require('socket.io');
 const {Chat} = require('./Chat');
 const {Lobby} = require('./Lobby');
 
-const sockets = (server, users) => {
+const sockets = (server) => {
     let io = socketio(server);
 
-    let lobby = new Lobby(io, '/lobby', users);
+    let lobby = new Lobby(io);
 
-    let chat = new Chat(io, '/chat', users, lobby);
+    let chat = new Chat(io, lobby);
 
     return io;
 };
