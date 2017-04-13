@@ -25,14 +25,15 @@ class Users {
         return this.users.filter((user) => user.id === id)[0];
     }
 
-    getUserList(room) {
+    getUserList(roomName) {
         return this.users
-            .filter((user) => user.room === room)
+            .filter((user) => user.room.getName() === roomName)
             .map((user) => user.name);
     }
 
-    getRoomList() {
-        return _.uniq(this.users.map((user) => user.room));
+    getRoomList(includeHidden) {
+        let hidden = includeHidden || false;
+        return _.uniq(this.users.map((user) => user.room).filter((room) => (!room.hidden || hidden)));
     }
 
 }
