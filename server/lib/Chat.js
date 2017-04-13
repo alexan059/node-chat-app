@@ -5,15 +5,17 @@ const {Rooms} = require('../utils/classes/rooms');
 
 class Chat {
 
-    constructor(io, namespace, users) {
-        this.io = io.of(namespace);
+    constructor(io, namespace, users, lobby) {
+        this.io = io;
+        this.chat = io.of(namespace);
         this.users = users;
+        this.lobby = lobby;
 
         this.onCreate();
     }
 
     onCreate() {
-        this.io.on('connection', this.onConnection.bind(this));
+        this.chat.on('connection', this.onConnection.bind(this));
     }
 
     onConnection(socket) {
@@ -44,7 +46,10 @@ class Chat {
         this.users.removeUser(this.socket.id); // Remove user if already registered in another room
         this.users.addUser(this.socket.id, params.name, room);
 
-        this.io.to(room).emit('updateUserList', this.users.getUserList(room));
+        this.chat.to(room).emit('updateUserList', this.users.getUserList(room));
+
+        this.lobby.updateRoomList(this.users.getRoomList());
+
         this.socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
         this.socket.broadcast.to(room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
 
@@ -55,7 +60,7 @@ class Chat {
         let user = this.users.getUser(this.socket.id);
 
         if (user && isRealString(message.text)) {
-            this.io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+            this.chat.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
         }
 
         callback();
@@ -65,7 +70,7 @@ class Chat {
         let user = this.users.getUser(this.socket.id);
 
         if (user) {
-            this.io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+            this.chat.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
         }
 
         callback();
@@ -77,8 +82,10 @@ class Chat {
         if (user) {
             console.log(`User "${user.name}" has disconnected from the room "${user.room}"`);
 
-            this.io.to(user.room).emit('updateUserList', this.users.getUserList(user.room));
-            this.io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`))
+            this.chat.to(user.room).emit('updateUserList', this.users.getUserList(user.room));
+            this.chat.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+
+            this.lobby.updateRoomList(this.users.getRoomList());
         }
     }
 }

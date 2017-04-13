@@ -1,17 +1,13 @@
 const socketio = require('socket.io');
 const {Chat} = require('./Chat');
-
-
-const {generateMessage, generateLocationMessage} = require('../utils/message');
-const {isValidString, isRealString} = require('../utils/validation');
-
-const {Rooms} = require('../utils/classes/rooms');
-
+const {Lobby} = require('./Lobby');
 
 const sockets = (server, users) => {
     let io = socketio(server);
 
-    let chat = new Chat(io, '/chat', users);
+    let lobby = new Lobby(io, '/lobby', users);
+
+    let chat = new Chat(io, '/chat', users, lobby);
 
     return io;
 };
