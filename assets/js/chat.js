@@ -1,4 +1,4 @@
 import ChatSocket from "./modules/ChatSocket";
 
-var chat = new ChatSocket();
+let chat = new ChatSocket();
 
