@@ -1,8 +1,8 @@
 const {expect} = require('chai');
 
-const {Room} = require('../models/Room');
-const {User} = require('../models/User');
-const Chatrooms = require('./Chatrooms');
+const {Room} = require('../models/_Room');
+const {User} = require('../models/_User');
+const Chatrooms = require('./_Chatrooms');
 
 describe('Chatroom', () => {
 

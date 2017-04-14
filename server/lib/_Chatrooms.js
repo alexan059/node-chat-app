@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
-const {Room} = require('../models/Room');
-const {User} = require('../models/User');
+const {Room} = require('../models/_Room');
+const {User} = require('../models/_User');
 const {returnCaseInsensitive} = require("../utils/validation.js");
 
 let rooms = null;
@@ -43,17 +43,14 @@ class Chatrooms {
     removeUser(socketId) {
         let user = this.getUser(socketId);
 
-
         if (user) {
-
-            console.log(socketId, user.room.getUserList());
 
             let room = user.room;
             room.removeUser(socketId);
 
-            //if (room.isEmpty()) {
-                //this.removeRoom(room.name);
-            //}
+            if (room.isEmpty()) {
+                this.removeRoom(room.name);
+            }
 
             return user;
         }

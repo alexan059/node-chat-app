@@ -1,4 +1,4 @@
-const Rooms = require('./Rooms');
+const Rooms = require('./_Rooms');
 
 class Lobby {
 

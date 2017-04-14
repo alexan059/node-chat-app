@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
-const {Room} = require("../models/Room");
-const {User} = require("../models/User");
+const {Room} = require("../models/_Room");
+const {User} = require("../models/_User");
 
 let rooms = null;
 

@@ -10,8 +10,4 @@ let isValidString = (str) => {
     return (isRealString(str) && isValidCharacterSet(str));
 };
 
-let returnCaseInsensitive = (str) => {
-    return str.trim().toLowerCase();
-};
-
-module.exports = {isRealString, isValidString, isValidCharacterSet, returnCaseInsensitive};
+module.exports = {isRealString, isValidString, isValidCharacterSet};
