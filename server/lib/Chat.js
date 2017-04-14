@@ -1,17 +1,18 @@
-const {isRealString} = require('../utils/validation');
+const {isRealString, isValidString, returnCaseInsensitive} = require('../utils/validation');
 const {generateMessage, generateLocationMessage} = require('../utils/message');
 
 const {Room} = require('../models/Room');
-const Rooms = require('./Rooms');
+const {User} = require('../models/User');
+const Chatrooms = require('./Chatrooms');
 
 class Chat {
 
     constructor(io, lobby) {
         this.io = io;
         this.chat = io.of('/chat');
-        this.lobby = lobby;
+        // this.lobby = lobby;
 
-        this.rooms = Rooms.getInstance();
+        this.chatrooms = Chatrooms.getInstance();
 
         this.onCreate();
     }
@@ -32,33 +33,29 @@ class Chat {
         this.socket.on('disconnect', this.onDisconnect.bind(this));
     }
 
-    onJoin(params, callback) {
+    onJoin(params, callback) { // Todo add execption if room is removed after user added
 
-        if (!Rooms.allFieldsAreValid(params.name, params.room)) {
-            return callback('Name and room name are not valid.');
+        if (!isValidString(params.name) || !isValidString(params.room)) {
+            return callback('Name and room are not valid.');
         }
 
-        let room = this.rooms.registerUser(this.socket.id, params.name, params.room, params.hidden);
-        let roomName = room.name;
+        let user = this.chatrooms.addUser(this.socket.id, params.name, params.room);
 
-        this.socket.join(roomName);
-
-        this.chat.to(roomName).emit('updateUserList', this.rooms.getUsers(roomName));
-
-        this.lobby.updateRoomList(this.rooms.getRooms()); // Todo refactor using event listener
+        this.socket.join(user.room.name);
+        this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
 
         this.socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
-        this.socket.broadcast.to(roomName).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+        this.socket.broadcast.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has joined.`));
 
-        // Log the message
-        console.log(`New user "${params.name}" has connected to room "${roomName}".`);
+        console.log(`${user.id}: New user "${user.name}" has connected to room "${user.room.name}".`);
 
-        // Callback on client
         callback();
     }
 
     onCreateMessage(message, callback) {
-        let user = this.rooms.getUser(this.socket.id);
+        let user = this.chatrooms.getUser(this.socket.id);
+
+        console.log(user);
 
         if (user && isRealString(message.text)) {
             this.chat.to(user.room.name).emit('newMessage', generateMessage(user.name, message.text));
@@ -68,7 +65,7 @@ class Chat {
     }
 
     onLocationMessage(coords, callback) {
-        let user = this.rooms.getUser(this.socket.id);
+        let user = this.chatrooms.getUser(this.socket.id);
 
         if (user) {
             this.chat.to(user.room.name).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
@@ -78,16 +75,18 @@ class Chat {
     }
 
     onDisconnect() {
-        let user = this.rooms.unregisterUser(this.socket.id);
+        let user = this.chatrooms.removeUser(this.socket.id);
 
         if (user) {
 
-            this.chat.to(user.room.name).emit('updateUserList', this.rooms.getUsers(user.room.name));
+            console.log(this.chatrooms.getUserList(user.room.name));
+
+            this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
             this.chat.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
 
-            this.lobby.updateRoomList(this.rooms.getRooms());
+            //this.lobby.updateRoomList(this.rooms.getRooms());
 
-            console.log(`User "${user.name}" has disconnected from the room "${user.room.name}"`);
+            console.log(`${user.id}: User "${user.name}" has disconnected from the room "${user.room.name}"`);
         }
     }
 }
