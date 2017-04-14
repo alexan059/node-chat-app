@@ -2,16 +2,16 @@ let isRealString = (str) => {
     return typeof str === 'string' && str.trim().length > 0;
 };
 
-let isValidString = (str) => {
-    if (!str) {
-        return false;
-    }
-
-    if (str.match(/([0-9A-Za-z_-])+/) === null) {
-        return false;
-    }
-
-    return isRealString(str);
+let isValidCharacterSet = (str) => {
+    return (str.match(/([0-9A-Za-z_-])+/) !== null);
 };
 
-module.exports = {isRealString, isValidString};
+let isValidString = (str) => {
+    return (isRealString(str) && isValidCharacterSet(str));
+};
+
+let returnCaseInsensitive = (str) => {
+    return str.trim().toLowerCase();
+};
+
+module.exports = {isRealString, isValidString, isValidCharacterSet, returnCaseInsensitive};

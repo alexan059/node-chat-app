@@ -44,8 +44,8 @@ class ChatSocket {
                 swal({
                     text: error,
                     onClose: () => window.location.href = '/'
-                })
-            })
+                });
+            });
     }
 
     onDisconnect() {
