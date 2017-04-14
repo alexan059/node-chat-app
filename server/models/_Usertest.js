@@ -1,7 +1,7 @@
 const {expect} = require('chai');
 
-const {Room} = require("./Room.js");
-const {User} = require("./User.js");
+const {Room} = require("./_Room.js");
+const {User} = require("./_User.js");
 
 describe('User', () => {
 
