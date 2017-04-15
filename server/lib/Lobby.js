@@ -1,31 +1,31 @@
-const Rooms = require('./_Rooms');
+const Chatrooms = require('./Chatrooms');
 
 class Lobby {
 
     constructor(io) {
         this.io = io;
         this.lobby = io.of('/lobby');
-        // this.rooms = Rooms.getInstance();
+        this.chatrooms = Chatrooms.getInstance();
 
         this.onCreate();
     }
 
     onCreate() {
-        // this.lobby.on('connection', this.onConnection.bind(this));
+        this.lobby.on('connection', this.onConnection.bind(this));
     }
 
-    // onConnection(socket) {
-    //     this.socket = socket;
-    //     this.updateRoomList(this.rooms.getRooms());
-    //     this.events();
-    // }
-    //
-    // events() {
-    // }
-    //
-    // updateRoomList(rooms) {
-    //     this.lobby.emit('updateRoomList', rooms);
-    // }
+    onConnection(socket) {
+        this.updateRoomList(this.chatrooms.getRoomList());
+        this.events(socket);
+    }
+
+    events(socket) {
+        this.chatrooms.on('updateRoomList', this.updateRoomList.bind(this));
+    }
+
+    updateRoomList(rooms) {
+        this.lobby.emit('updateRoomList', rooms);
+    }
 
 }
 

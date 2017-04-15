@@ -1,4 +1,5 @@
-const {isValidString} = require('../utils/validation');
+const {generateMessage, generateLocationMessage} = require('../utils/message');
+const {isValidString, isRealString} = require('../utils/validation');
 
 const Chatrooms = require("./Chatrooms.js");
 
@@ -36,55 +37,47 @@ class Chat {
 
         let user = this.chatrooms.join(socket.id, params.name, {name: params.room, isHidden: params.hidden});
 
-        // let user = this.chatrooms.addUser(socket.id, params.name, params.room);
+        socket.join(user.room.name);
+        this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
 
-        // socket.join(user.room.name);
-        // this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
+        socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
+        socket.broadcast.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has joined.`));
 
-        // socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
-        // socket.broadcast.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has joined.`));
+        console.log(`${user.id}: New user "${user.name}" has connected to room "${user.room.name}".`);
 
-        // console.log(`${user.id}: New user "${user.name}" has connected to room "${user.room.name}".`);
-
-        // callback();
+        callback();
     }
 
     onCreateMessage(socket, message, callback) {
-        // let user = this.chatrooms.getUser(socket.id);
-        //
-        // console.log(user);
-        //
-        // if (user && isRealString(message.text)) {
-        //     this.chat.to(user.room.name).emit('newMessage', generateMessage(user.name, message.text));
-        // }
-        //
-        // callback();
+        let user = this.chatrooms.getUser(socket.id);
+
+        if (user && isRealString(message.text)) {
+            this.chat.to(user.room.name).emit('newMessage', generateMessage(user.name, message.text));
+        }
+
+        callback();
     }
 
     onLocationMessage(socket, coords, callback) {
-        // let user = this.chatrooms.getUser(socket.id);
-        //
-        // if (user) {
-        //     this.chat.to(user.room.name).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
-        // }
-        //
-        // callback();
+        let user = this.chatrooms.getUser(socket.id);
+
+        if (user) {
+            this.chat.to(user.room.name).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+        }
+
+        callback();
     }
 
     onDisconnect(socket) {
-        // let user = this.chatrooms.removeUser(socket.id);
-        //
-        // if (user) {
-        //
-        //     console.log(this.chatrooms.getUserList(user.room.name));
-        //
-        //     this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
-        //     this.chat.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
-        //
-        //     //this.lobby.updateRoomList(this.rooms.getRooms());
-        //
-        //     console.log(`${user.id}: User "${user.name}" has disconnected from the room "${user.room.name}"`);
-        // }
+        let user = this.chatrooms.leave(socket.id);
+
+        if (user) {
+
+            this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
+            this.chat.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
+
+            console.log(`${user.id}: User "${user.name}" has disconnected from the room "${user.room.name}"`);
+        }
     }
 }
 
