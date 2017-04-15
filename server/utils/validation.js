@@ -3,11 +3,11 @@ let isRealString = (str) => {
 };
 
 let isValidCharacterSet = (str) => {
-    return (str.match(/([0-9A-Za-z_-])+/) !== null);
+    return /^([0-9A-Za-z])+$/.test(str.trim());
 };
 
 let isValidString = (str) => {
-    return (isRealString(str) && isValidCharacterSet(str));
+    return isRealString(str) && isValidCharacterSet(str);
 };
 
 module.exports = {isRealString, isValidString, isValidCharacterSet};

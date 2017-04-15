@@ -1,5 +1,6 @@
 const {EventEmitter} = require('events');
 const _ = require('lodash');
+const {prepString} = require("../utils/string");
 
 let rooms = null;
 
@@ -12,12 +13,12 @@ class Chatrooms extends EventEmitter {
 
     join(socketId, userName, roomParams) {
         // Find room if exists
-        let room = _.find(this.rooms, (room) => room.name === roomParams.name);
+        let room = _.find(this.rooms, (room) => room.name === prepString(roomParams.name));
 
         // Create room if it doesn't exist
         if (!room) {
             room = {
-                name: roomParams.name,
+                name: prepString(roomParams.name),
                 isHidden: (typeof roomParams.isHidden !== 'undefined' && parseInt(roomParams.isHidden) === 1),
                 users: []
             };
@@ -31,7 +32,7 @@ class Chatrooms extends EventEmitter {
 
         let user = {
             id: socketId,
-            name: userName,
+            name: prepString(userName),
             room: room
         };
 
@@ -79,7 +80,7 @@ class Chatrooms extends EventEmitter {
 
     getUserList(roomName) {
         // Get the room
-        let room = _.find(this.rooms, (room) => room.name === roomName);
+        let room = _.find(this.rooms, (room) => room.name === prepString(roomName));
 
         // Return empty array if room doesn't exist
         if (!room) {
