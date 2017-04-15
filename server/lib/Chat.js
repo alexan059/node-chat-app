@@ -27,12 +27,13 @@ class Chat {
         socket.on('createMessage', this.onCreateMessage.bind(this, socket));
         socket.on('createLocationMessage', this.onLocationMessage.bind(this, socket));
         socket.on('disconnect', this.onDisconnect.bind(this, socket));
+        socket.on('userIsTyping', this.onTypingUser.bind(this, socket));
     }
 
     onJoin(socket, params, callback) {
 
         if (!isValidString(params.name) || !isValidString(params.room)) {
-            return callback('Name and room are not valid.');
+            return callback({error: 'Name and room are not valid.'});
         }
 
         let user = this.chatrooms.join(socket.id, params.name, {name: params.room, isHidden: params.hidden});
@@ -45,14 +46,17 @@ class Chat {
 
         console.log(`${user.id}: New user "${user.name}" has connected to room "${user.room.name}".`);
 
-        callback();
+        callback({user: user.name});
     }
 
     onCreateMessage(socket, message, callback) {
         let user = this.chatrooms.getUser(socket.id);
 
         if (user && isRealString(message.text)) {
+            user.isTyping = false;
+
             this.chat.to(user.room.name).emit('newMessage', generateMessage(user.name, message.text));
+
         }
 
         callback();
@@ -68,11 +72,24 @@ class Chat {
         callback();
     }
 
+    onTypingUser(socket, isTyping, callback) {
+        let user = this.chatrooms.getUser(socket.id);
+
+        if (user) {
+            user.isTyping = isTyping;
+
+            socket.broadcast.to(user.room.name).emit('typingUsers', this.chatrooms.getTypingUsers(user.room.name));
+        }
+
+        callback();
+    }
+
     onDisconnect(socket) {
         let user = this.chatrooms.leave(socket.id);
 
         if (user) {
 
+            this.chat.to(user.room.name).emit('typingUsers', this.chatrooms.getTypingUsers(user.room.name));
             this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
             this.chat.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));
 

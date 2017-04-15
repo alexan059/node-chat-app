@@ -34131,6 +34131,7 @@ var ChatSocket = function () {
         this.messageForm = (0, _jquery2.default)('#message-form');
         this.messageInput = (0, _jquery2.default)('[name="message"]');
         this.userList = (0, _jquery2.default)('#users');
+        this.typingUsers = (0, _jquery2.default)('#typing-users');
 
         this.events();
     }
@@ -34143,17 +34144,21 @@ var ChatSocket = function () {
             this.socket.on('newMessage', this.onNewMessage.bind(this));
             this.socket.on('newLocationMessage', this.onNewLocatonMessage.bind(this));
             this.socket.on('updateUserList', this.onUpdateUserList.bind(this));
+            this.socket.on('typingUsers', this.onTypingUsers.bind(this));
 
             this.messageForm.on('submit', this.onSubmitMessage.bind(this));
+            this.messageInput.on('keyup', this.onTypingMessage.bind(this));
             this.locationButton.on('click', this.onSendLocation.bind(this));
         }
     }, {
         key: 'onConnect',
         value: function onConnect() {
             var params = _jquery2.default.deparam(window.location.search);
+            var that = this;
 
-            this.emitJoin(params).then(function (message) {
-                return console.log(message);
+            this.emitJoin(params).then(function (response) {
+                console.log(response.message);
+                that.user = response.user;
             }).catch(function (error) {
                 (0, _sweetalert2.default)({
                     text: error,
@@ -34167,44 +34172,6 @@ var ChatSocket = function () {
         key: 'onDisconnect',
         value: function onDisconnect() {
             console.log('Disconnected from server.');
-        }
-    }, {
-        key: 'emitJoin',
-        value: function emitJoin(params) {
-            var socket = this.socket;
-
-            return new Promise(function (resolve, reject) {
-                socket.emit('join', params, function (error) {
-                    if (error) {
-                        return reject(error);
-                    }
-
-                    resolve('Connected to server.');
-                });
-            });
-        }
-    }, {
-        key: 'emitMessage',
-        value: function emitMessage(message) {
-            var socket = this.socket;
-
-            return new Promise(function (resolve) {
-                socket.emit('createMessage', {
-                    text: message
-                }, resolve);
-            });
-        }
-    }, {
-        key: 'emitLocation',
-        value: function emitLocation(position) {
-            var socket = this.socket;
-
-            return new Promise(function (resolve) {
-                socket.emit('createLocationMessage', {
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                }, resolve);
-            });
         }
     }, {
         key: 'onNewMessage',
@@ -34235,6 +34202,20 @@ var ChatSocket = function () {
             this.scrollToBottom();
         }
     }, {
+        key: 'onTypingUsers',
+        value: function onTypingUsers(users) {
+            var currentUser = this.user;
+            var typingUsers = users.filter(function (user) {
+                return user !== currentUser;
+            });
+
+            if (typingUsers.length > 0) {
+                return this.typingUsers.text(typingUsers.join(', ') + ' is typing...');
+            }
+
+            this.typingUsers.text('');
+        }
+    }, {
         key: 'onSubmitMessage',
         value: function onSubmitMessage(event) {
             event.preventDefault();
@@ -34245,6 +34226,7 @@ var ChatSocket = function () {
             this.emitMessage(message).then(function () {
                 return input.val('');
             });
+            this.emitTyping(false);
         }
     }, {
         key: 'onSendLocation',
@@ -34272,6 +34254,59 @@ var ChatSocket = function () {
             });
 
             this.userList.html(ol);
+        }
+    }, {
+        key: 'onTypingMessage',
+        value: function onTypingMessage() {
+            var isTyping = this.messageInput.val() !== "";
+            this.emitTyping(isTyping);
+        }
+    }, {
+        key: 'emitJoin',
+        value: function emitJoin(params) {
+            var socket = this.socket;
+
+            return new Promise(function (resolve, reject) {
+                socket.emit('join', params, function (response) {
+                    if (response.error) {
+                        return reject(response.error);
+                    }
+
+                    resolve({ message: 'Connected to server.', user: response.user });
+                });
+            });
+        }
+    }, {
+        key: 'emitMessage',
+        value: function emitMessage(message) {
+            var socket = this.socket;
+
+            return new Promise(function (resolve) {
+                socket.emit('createMessage', {
+                    text: message
+                }, resolve);
+            });
+        }
+    }, {
+        key: 'emitLocation',
+        value: function emitLocation(position) {
+            var socket = this.socket;
+
+            return new Promise(function (resolve) {
+                socket.emit('createLocationMessage', {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                }, resolve);
+            });
+        }
+    }, {
+        key: 'emitTyping',
+        value: function emitTyping(isTyping) {
+            var socket = this.socket;
+
+            return new Promise(function (resolve) {
+                socket.emit('userIsTyping', isTyping, resolve);
+            });
         }
     }, {
         key: 'getLocation',

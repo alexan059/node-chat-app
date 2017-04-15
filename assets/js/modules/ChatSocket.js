@@ -20,6 +20,7 @@ class ChatSocket {
         this.messageForm = $('#message-form');
         this.messageInput = $('[name="message"]');
         this.userList = $('#users');
+        this.typingUsers = $('#typing-users');
 
         this.events();
     }
@@ -30,17 +31,23 @@ class ChatSocket {
         this.socket.on('newMessage', this.onNewMessage.bind(this));
         this.socket.on('newLocationMessage', this.onNewLocatonMessage.bind(this));
         this.socket.on('updateUserList', this.onUpdateUserList.bind(this));
+        this.socket.on('typingUsers', this.onTypingUsers.bind(this));
 
         this.messageForm.on('submit', this.onSubmitMessage.bind(this));
+        this.messageInput.on('keyup', this.onTypingMessage.bind(this));
         this.locationButton.on('click', this.onSendLocation.bind(this));
     }
 
 
     onConnect() {
         let params = $.deparam(window.location.search);
+        let that = this;
 
         this.emitJoin(params)
-            .then((message) => console.log(message))
+            .then((response) => {
+                console.log(response.message);
+                that.user = response.user;
+            })
             .catch((error) => {
                 swal({
                     text: error,
@@ -79,6 +86,17 @@ class ChatSocket {
         this.scrollToBottom();
     }
 
+    onTypingUsers(users) {
+        let currentUser = this.user;
+        let typingUsers = users.filter((user) => user !== currentUser);
+
+        if (typingUsers.length > 0) {
+            return this.typingUsers.text(typingUsers.join(', ') + ' is typing...');
+        }
+
+        this.typingUsers.text('');
+    }
+
     onSubmitMessage(event) {
         event.preventDefault();
         let input = this.messageInput;
@@ -86,6 +104,7 @@ class ChatSocket {
         let message = input.val();
 
         this.emitMessage(message).then(() => input.val(''));
+        this.emitTyping(false);
     }
 
     onSendLocation() {
@@ -110,17 +129,22 @@ class ChatSocket {
         this.userList.html(ol);
     }
 
+    onTypingMessage() {
+        let isTyping = this.messageInput.val() !== "";
+        this.emitTyping(isTyping);
+    }
+
 
     emitJoin(params) {
         let socket = this.socket;
 
         return new Promise((resolve, reject) => {
-            socket.emit('join', params, (error) => {
-                if (error) {
-                    return reject(error)
+            socket.emit('join', params, (response) => {
+                if (response.error) {
+                    return reject(response.error)
                 }
 
-                resolve('Connected to server.');
+                resolve({message: 'Connected to server.', user: response.user});
             });
         });
     }
@@ -143,6 +167,14 @@ class ChatSocket {
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude
             }, resolve);
+        });
+    }
+
+    emitTyping(isTyping) {
+        let socket = this.socket;
+
+        return new Promise((resolve) => {
+            socket.emit('userIsTyping', isTyping, resolve);
         });
     }
 

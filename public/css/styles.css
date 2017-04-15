@@ -149,6 +149,15 @@ button:disabled {
     flex-grow: 1;
 }
 
+#typing-users {
+    width: 100%;
+    font-size: .75rem;
+    height: 22px;
+    padding: 5px;
+    background-color: #edf1f5;
+    color: #999;
+}
+
 .chat__messages {
     list-style-type: none;
     padding: 10px;
