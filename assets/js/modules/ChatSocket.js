@@ -35,6 +35,7 @@ class ChatSocket {
         this.locationButton.on('click', this.onSendLocation.bind(this));
     }
 
+
     onConnect() {
         let params = $.deparam(window.location.search);
 
@@ -50,41 +51,6 @@ class ChatSocket {
 
     onDisconnect() {
         console.log('Disconnected from server.')
-    }
-
-    emitJoin(params) {
-        let socket = this.socket;
-
-        return new Promise((resolve, reject) => {
-            socket.emit('join', params, (error) => {
-                if (error) {
-                    return reject(error)
-                }
-
-                resolve('Connected to server.');
-            });
-        });
-    }
-
-    emitMessage(message) {
-        let socket = this.socket;
-
-        return new Promise((resolve) => {
-            socket.emit('createMessage', {
-                text: message
-            }, resolve);
-        });
-    }
-
-    emitLocation(position) {
-        let socket = this.socket;
-
-        return new Promise((resolve) => {
-            socket.emit('createLocationMessage', {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-            }, resolve);
-        });
     }
 
     onNewMessage(message) {
@@ -143,6 +109,43 @@ class ChatSocket {
 
         this.userList.html(ol);
     }
+
+
+    emitJoin(params) {
+        let socket = this.socket;
+
+        return new Promise((resolve, reject) => {
+            socket.emit('join', params, (error) => {
+                if (error) {
+                    return reject(error)
+                }
+
+                resolve('Connected to server.');
+            });
+        });
+    }
+
+    emitMessage(message) {
+        let socket = this.socket;
+
+        return new Promise((resolve) => {
+            socket.emit('createMessage', {
+                text: message
+            }, resolve);
+        });
+    }
+
+    emitLocation(position) {
+        let socket = this.socket;
+
+        return new Promise((resolve) => {
+            socket.emit('createLocationMessage', {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            }, resolve);
+        });
+    }
+
 
     getLocation() {
         return new Promise((resolve, reject) => {
