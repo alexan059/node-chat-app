@@ -34226,7 +34226,6 @@ var ChatSocket = function () {
             this.emitMessage(message).then(function () {
                 return input.val('');
             });
-            this.emitTyping(false);
         }
     }, {
         key: 'onSendLocation',

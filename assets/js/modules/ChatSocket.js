@@ -104,7 +104,6 @@ class ChatSocket {
         let message = input.val();
 
         this.emitMessage(message).then(() => input.val(''));
-        this.emitTyping(false);
     }
 
     onSendLocation() {
