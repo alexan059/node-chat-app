@@ -34256,9 +34256,13 @@ var ChatSocket = function () {
         }
     }, {
         key: 'onTypingMessage',
-        value: function onTypingMessage() {
-            var isTyping = this.messageInput.val() !== "";
-            this.emitTyping(isTyping);
+        value: function onTypingMessage(e) {
+            if (e.keyCode !== 13) {
+                var isTyping = this.messageInput.val() !== "";
+                this.emitTyping(isTyping);
+            } else {
+                this.emitTyping(false);
+            }
         }
     }, {
         key: 'emitJoin',
