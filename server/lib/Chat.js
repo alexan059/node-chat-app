@@ -1,10 +1,14 @@
+const {isValidString} = require('../utils/validation');
+
+const Chatrooms = require("./Chatrooms.js");
+
 class Chat {
 
     constructor(io) {
         this.io = io;
         this.chat = io.of('/chat');
 
-        // this.chatrooms = Chatrooms.getInstance();
+        this.chatrooms = Chatrooms.getInstance();
 
         this.onCreate();
     }
@@ -24,22 +28,24 @@ class Chat {
         socket.on('disconnect', this.onDisconnect.bind(this, socket));
     }
 
-    onJoin(socket, params, callback) { // Todo add execption if room is removed after user added
-        //
-        // if (!isValidString(params.name) || !isValidString(params.room)) {
-        //     return callback('Name and room are not valid.');
-        // }
-        //
+    onJoin(socket, params, callback) {
+
+        if (!isValidString(params.name) || !isValidString(params.room)) {
+            return callback('Name and room are not valid.');
+        }
+
+        let user = this.chatrooms.join(socket.id, params.name, {name: params.room, isHidden: params.hidden});
+
         // let user = this.chatrooms.addUser(socket.id, params.name, params.room);
-        //
+
         // socket.join(user.room.name);
         // this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));
-        //
+
         // socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app.'));
         // socket.broadcast.to(user.room.name).emit('newMessage', generateMessage('Admin', `${user.name} has joined.`));
-        //
+
         // console.log(`${user.id}: New user "${user.name}" has connected to room "${user.room.name}".`);
-        //
+
         // callback();
     }
 
