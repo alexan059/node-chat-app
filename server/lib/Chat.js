@@ -56,6 +56,7 @@ class Chat {
             user.isTyping = false;
 
             this.chat.to(user.room.name).emit('newMessage', generateMessage(user.name, message.text));
+            socket.broadcast.to(user.room.name).emit('typingUsers', this.chatrooms.getTypingUsers(user.room.name));
 
         }
 
