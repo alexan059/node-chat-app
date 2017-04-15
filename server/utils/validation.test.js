@@ -1,7 +1,7 @@
 const {expect} = require('chai');
 const {isRealString, isValidString, isValidCharacterSet, returnCaseInsensitive} = require("./validation.js");
 
-let testString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_';
+let testString = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 
 describe('utils/validation', () => {
     describe('isRealString', () => {
