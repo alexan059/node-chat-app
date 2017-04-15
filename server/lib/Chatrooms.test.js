@@ -11,10 +11,10 @@ describe('Chatroom', () => {
         Chatrooms.resetInstance();
         chatrooms = Chatrooms.getInstance();
 
-        userJohn = {id: 'user-john', name: 'john'};
+        userJohn = {id: 'user-john', name: 'john', isTyping: false};
         chatRoom = {name: 'chat', users: [userJohn], isHidden: false};
 
-        userMaria = {id: 'user-maria', name: 'maria'};
+        userMaria = {id: 'user-maria', name: 'maria', isTyping: true};
         courseRoom = {name: 'course'};
 
         userJohn.room = chatRoom;
@@ -109,6 +109,18 @@ describe('Chatroom', () => {
 
             expect(list).to.have.lengthOf(2);
             expect(list).to.have.members([userJohn.name, userMaria.name]);
+        });
+    });
+
+    describe('getTypingUsers', () => {
+        it('should return a user list with 2 typing user names', () => {
+            let typingUser = {id: 'user-typing', name: 'typing', isTyping: true};
+            chatRoom.users = [userJohn, userMaria, typingUser];
+
+            let list = chatrooms.getTypingUsers(chatRoom.name);
+
+            expect(list).to.have.lengthOf(2);
+            expect(list).to.have.members([typingUser.name, userMaria.name]);
         });
     });
 

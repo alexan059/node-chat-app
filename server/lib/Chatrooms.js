@@ -33,7 +33,8 @@ class Chatrooms extends EventEmitter {
         let user = {
             id: socketId,
             name: prepString(userName),
-            room: room
+            room: room,
+            isTyping: false
         };
 
         // Add user to the room
@@ -89,6 +90,22 @@ class Chatrooms extends EventEmitter {
 
         // Return all user names of given room
         return _.map(room.users, (user) => user.name);
+    }
+
+    getTypingUsers(roomName) {
+        // Get the room
+        let room = _.find(this.rooms, (room) => room.name === prepString(roomName));
+
+        // Return empty array if room doesn't exist
+        if (!room) {
+            return []
+        }
+
+        // Get all typing users
+        let users =  _.filter(room.users, (user) => user.isTyping);
+
+        // Return all typing user names
+        return _.map(users, (user) => user.name);
     }
 
     getRoomList() {
