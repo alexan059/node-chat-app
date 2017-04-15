@@ -128,9 +128,13 @@ class ChatSocket {
         this.userList.html(ol);
     }
 
-    onTypingMessage() {
-        let isTyping = this.messageInput.val() !== "";
-        this.emitTyping(isTyping);
+    onTypingMessage(e) {
+        if (e.keyCode !== 13) {
+            let isTyping = this.messageInput.val() !== "";
+            this.emitTyping(isTyping);
+        } else {
+            this.emitTyping(false);
+        }
     }
 
 
