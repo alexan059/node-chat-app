@@ -108,6 +108,19 @@ class Chatrooms extends EventEmitter {
         return _.map(users, (user) => user.name);
     }
 
+    userNameExists(userName, roomName) {
+        // Find a room if exists
+        let room = _.find(this.rooms, (room) => room.name === prepString(roomName));
+
+        // Check if user exists and return true/false
+        if (room) {
+            return _.findIndex(room.users, (user) => user.name === prepString(userName)) !== -1;
+        }
+
+        // Room doesn't exist
+        return false;
+    }
+
     getRoomList() {
         // Find all visible rooms
         let rooms = _.filter(this.rooms, (room) => !room.isHidden);

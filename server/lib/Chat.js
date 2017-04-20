@@ -1,7 +1,7 @@
 const {generateMessage, generateLocationMessage} = require('../utils/message');
 const {isValidString, isRealString} = require('../utils/validation');
 
-const Chatrooms = require("./Chatrooms.js");
+const Chatrooms = require('./Chatrooms.js');
 
 class Chat {
 
@@ -34,6 +34,10 @@ class Chat {
 
         if (!isValidString(params.name) || !isValidString(params.room)) {
             return callback({error: 'Name and room are not valid.'});
+        }
+
+        if (this.chatrooms.userNameExists(params.name, params.room)) {
+            return callback({error: 'User already exists in this room.'});
         }
 
         let user = this.chatrooms.join(socket.id, params.name, {name: params.room, isHidden: params.hidden});

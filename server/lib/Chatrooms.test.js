@@ -124,6 +124,20 @@ describe('Chatroom', () => {
         });
     });
 
+    describe('userNameExists', () => {
+        it('should return false if username dosen\'t exist in room', () => {
+            let userExists = chatrooms.userNameExists(userMaria.name, chatRoom.name);
+
+            expect(userExists).to.be.false;
+        });
+
+        it('should return true if username already exists in room', () => {
+            let userExists = chatrooms.userNameExists(userJohn.name, chatRoom.name);
+
+            expect(userExists).to.be.true;
+        });
+    });
+
     describe('getRoomList', () => {
         it('should return a list of 2 rooms', () => {
             chatrooms.rooms = [chatRoom, courseRoom];
