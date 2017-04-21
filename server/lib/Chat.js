@@ -32,15 +32,15 @@ class Chat {
 
     onJoin(socket, params, callback) {
 
-        if (!isValidString(params.name) || !isValidString(params.room)) {
-            return callback({error: 'Name and room are not valid.'});
-        }
+        // if (!isValidString(params.name) || !isValidString(params.room)) {
+        //     return callback({error: 'Name and room are not valid.'});
+        // }
 
-        if (this.chatrooms.userNameExists(params.name, params.room)) {
-            return callback({error: 'User already exists in this room.'});
-        }
+        // if (this.chatrooms.userNameExists(params.name, params.room)) {
+        //     return callback({error: 'User already exists in this room.'});
+        // }
 
-        let user = this.chatrooms.join(socket.id, params.name, {name: params.room, isHidden: params.hidden});
+        // let user = this.chatrooms.join(socket.id, params.name, {name: params.room, isHidden: params.hidden});
 
         socket.join(user.room.name);
         this.chat.to(user.room.name).emit('updateUserList', this.chatrooms.getUserList(user.room.name));

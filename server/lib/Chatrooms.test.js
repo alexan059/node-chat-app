@@ -11,10 +11,10 @@ describe('Chatroom', () => {
         Chatrooms.resetInstance();
         chatrooms = Chatrooms.getInstance();
 
-        userJohn = {id: 'user-john', name: 'john', isTyping: false};
+        userJohn = {id: 'user-john', name: 'john', isTyping: false, token: null};
         chatRoom = {name: 'chat', users: [userJohn], isHidden: false};
 
-        userMaria = {id: 'user-maria', name: 'maria', isTyping: true};
+        userMaria = {id: 'user-maria', name: 'maria', isTyping: true, token: null};
         courseRoom = {name: 'course'};
 
         userJohn.room = chatRoom;
@@ -25,6 +25,76 @@ describe('Chatroom', () => {
     it('should return the global instance of Chatrooms', () => {
         let instance = Chatrooms.getInstance();
         expect(instance).to.be.equal(chatrooms);
+    });
+
+    describe('register', () => {
+
+        let protectedRoom;
+
+        beforeEach(() => {
+            protectedRoom = {
+                name: 'protected',
+                password: 'password'
+            };
+
+            userMaria.id = null;
+            userMaria.token = 'token';
+        });
+
+        it('should add a password protected room and register a user', (done) => {
+            expect(chatrooms.rooms).to.have.lengthOf(1);
+
+            chatrooms.register(userMaria.token, userMaria.name, protectedRoom).then(() => {
+                expect(chatrooms.rooms).to.have.lengthOf(2);
+                expect(chatrooms.rooms[1].name).to.be.equal(protectedRoom.name);
+                expect(chatrooms.rooms[1].password).to.exist;
+                expect(chatrooms.rooms[1].password).to.be.a('string');
+                expect(chatrooms.rooms[1].users).to.have.lengthOf(1);
+                expect(chatrooms.rooms[1].users[0].id).to.be.equal(userMaria.id);
+                expect(chatrooms.rooms[1].users[0].token).to.be.equal(userMaria.token);
+                expect(chatrooms.rooms[1].users[0].name).to.be.equal(userMaria.name);
+
+                done();
+            }).catch((err) => {
+                done(err);
+            });
+
+        });
+
+        it('should create a new room with a new user without protection', (done) => {
+            expect(chatrooms.rooms).to.have.lengthOf(1);
+
+            chatrooms.register(userMaria.token, userMaria.name, courseRoom).then(() => {
+                expect(chatrooms.rooms).to.have.lengthOf(2);
+                expect(chatrooms.rooms[1].name).to.be.equal(courseRoom.name);
+                expect(chatrooms.rooms[1].users).to.have.lengthOf(1);
+                expect(chatrooms.rooms[1].users[0].id).to.be.equal(userMaria.id);
+                expect(chatrooms.rooms[1].users[0].token).to.be.equal(userMaria.token);
+                expect(chatrooms.rooms[1].users[0].name).to.be.equal(userMaria.name);
+
+                done();
+            }).catch((err) => {
+                done(err);
+            });
+
+        });
+
+        it('should join a user to an existing room', (done) => {
+            expect(chatrooms.rooms[0].users).to.have.lengthOf(1);
+
+            chatrooms.register(userMaria.token, userMaria.name, chatRoom).then(() => {
+                expect(chatrooms.rooms[0].users).to.have.lengthOf(2);
+                expect(chatrooms.rooms[0].users[1].id).to.be.equal(userMaria.id);
+                expect(chatrooms.rooms[0].users[1].token).to.be.equal(userMaria.token);
+                expect(chatrooms.rooms[0].users[1].name).to.be.equal(userMaria.name);
+
+                done();
+            }).catch((err) => {
+                done(err);
+            });
+
+        });
+
     });
 
     describe('join', () => {
@@ -79,6 +149,10 @@ describe('Chatroom', () => {
 
             expect(chatrooms.rooms).to.have.lengthOf(0);
         });
+    });
+
+    describe('addUser', () => {
+
     });
 
     describe('getUser', () => {
@@ -155,6 +229,41 @@ describe('Chatroom', () => {
 
             expect(list).to.have.lengthOf(2);
             expect(list).to.have.members([chatRoom.name, courseRoom.name]);
+        });
+    });
+
+    describe('authenticate', () => {
+
+        let protectedRoom;
+
+        beforeEach(() => {
+            protectedRoom = {
+                name: 'protected',
+                password: '$2a$10$ZmAb.5mB1q3Ip3d7EKAqQuKFnU7j6NQV5Xui.s29TgkFr5X9l1Q/K' // -> password
+            };
+
+            chatrooms.rooms = [chatRoom, courseRoom, protectedRoom];
+
+        });
+
+        it('should join a user in a protected room with valid password', (done) => {
+            let password = 'password';
+
+            chatrooms.authenticate(protectedRoom.name, password).then(() => {
+                done();
+            }).catch(() => {
+                done(new Error('expected password to be valid'));
+            });
+        });
+
+        it('should not join user with invalid password into a room', (done) => {
+            let password = 'abc';
+
+            chatrooms.authenticate(protectedRoom.name, password).then(() => {
+                done(new Error('expected password to be invalid'));
+            }).catch(() => {
+                done();
+            });
         });
     });
 

@@ -1,11 +1,21 @@
 import $ from 'jquery';
 import io from 'socket.io-client';
-import selectize from 'selectize';
 import _ from 'lodash';
+import swal from 'sweetalert2';
+import 'selectize';
+
+import '../libs/deparam';
+
+const errors = {
+    invalid: 'Name and room are not valid.',
+    user_exists: 'User already exists in this room.'
+};
 
 class LobbySocket {
 
     constructor() {
+        this.showErrors(); // Show errors first
+
         this.socket = io('/lobby');
 
         this.onCreate();
@@ -37,7 +47,7 @@ class LobbySocket {
             return {
                 value: room,
                 text: room
-            }
+            };
         });
 
         let selected = this.selectRoom.val();
@@ -48,6 +58,19 @@ class LobbySocket {
         selectize.refreshOptions(false);
         selectize.createItem(selected);
 
+    }
+
+    showErrors() {
+        let params = $.deparam(window.location.search);
+
+        if (params.error) {
+            let error = errors[params.error] || 'Something went wrong. Please try again.';
+
+            swal({
+                text: error,
+                onClose: () => window.location.href = '/'
+            });
+        }
     }
 
 }

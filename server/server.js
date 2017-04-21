@@ -1,7 +1,9 @@
 const path = require('path');
 const express = require('express');
 const http = require('http');
-let {sockets} = require('./lib/sockets');
+
+const {sockets} = require('./lib/sockets');
+const {chatRouter} = require('./middleware/chat-router');
 
 const publicPath = path.join(__dirname, '../public/');
 const port = process.env.PORT || 3000;
@@ -12,7 +14,12 @@ let io = sockets(server);
 
 app.use(express.static(publicPath));
 
-app.get('/chat', (req, res) => {
+app.get('/chat', chatRouter, (req, res) => {
+    res.sendFile('chat.html', {root: publicPath});
+});
+
+app.get('/chat/:id', (req, res) => {
+    //console.log(req.params.id);
     res.sendFile('chat.html', {root: publicPath});
 });
 
