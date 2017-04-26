@@ -14,12 +14,9 @@ let io = sockets(server);
 
 app.use(express.static(publicPath));
 
-app.get('/chat', chatRouter, (req, res) => {
-    res.sendFile('chat.html', {root: publicPath});
-});
+app.get('/chat', chatRouter);
 
 app.get('/chat/:id', (req, res) => {
-    //console.log(req.params.id);
     res.sendFile('chat.html', {root: publicPath});
 });
 

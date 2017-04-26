@@ -7,7 +7,7 @@ const sockets = (server) => {
 
     let lobby = new Lobby(io);
 
-    let chat = new Chat(io, lobby);
+    let chat = new Chat(io);
 
     return io;
 };

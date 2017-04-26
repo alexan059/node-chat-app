@@ -40,10 +40,10 @@ class ChatSocket {
 
 
     onConnect() {
-        let params = $.deparam(window.location.search);
+        let params = {token: window.location.pathname.split('/')[2]};
         let that = this;
 
-        this.emitJoin(params)
+        that.emitJoin(params)
             .then((response) => {
                 console.log(response.message);
                 that.user = response.user;

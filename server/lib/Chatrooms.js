@@ -16,6 +16,7 @@ class Chatrooms extends EventEmitter {
         // Find room if exists
         let room = _.find(this.rooms, (room) => room.name === prepString(roomParams.name));
 
+        // If room exists return id
         if (room) {
             this.addUser(uniqueId, userName, room);
 
@@ -53,27 +54,31 @@ class Chatrooms extends EventEmitter {
                 });
             });
         });
+    }
 
-        // Create room if it doesn't exist
-        // if (!room) {
-        //     room = {
-        //         name: prepString(roomParams.name),
-        //         isHidden: (typeof roomParams.isHidden !== 'undefined' && parseInt(roomParams.isHidden) === 1),
-        //         users: []
-        //     };
-        //
-        //     // Add room
-        //     this.rooms.push(room);
-        // }
-        //
-        // Leave user from old room before assigning to new one
-        // this.leave(socketId);
-        //
-        //
-        // Emit the update room list event
-        // this.emit('updateRoomList', this.getRoomList());
-        //
-        // return user;
+    joinRoom(socketId, token) {
+        // Leave user with current socket id if already assigned
+        this.leave(socketId);
+
+        // Find the room containing the user
+        let room = _.find(this.rooms, (room) => {
+            return (_.findIndex(room.users, (user) => user.token === token) !== -1);
+        });
+
+        // Return the user if room exists
+        if (room) {
+            let user = _.find(room.users, (user) => user.token === token);
+
+            if (user) {
+
+                user.id = socketId;
+                user.token = null;
+
+                return user;
+            }
+        }
+
+        return false;
     }
 
     join(socketId, userName, roomParams) {
