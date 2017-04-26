@@ -131,6 +131,22 @@ describe('Chatroom', () => {
         });
     });
 
+    describe('joinRoom', () => {
+        it('should find the registered user and finally join it to the room', () => {
+            let token = 'token';
+            let id = userMaria.id;
+            userMaria.token = token;
+            userMaria.id = null;
+            userMaria.room = chatRoom;
+            chatRoom.users = [userJohn, userMaria];
+
+            let user = chatrooms.joinRoom(id, token);
+
+            expect(user.id).to.be.equal(id);
+            expect(user.name).to.be.equal(userMaria.name);
+        });
+    });
+
     describe('leave', () => {
         it('should remove a user from a room', () => {
             chatRoom.users = [userJohn, userMaria];
@@ -152,7 +168,14 @@ describe('Chatroom', () => {
     });
 
     describe('addUser', () => {
+        it('should add a user with a given token to an existing room', () => {
+            let token = 'token';
 
+            chatrooms.addUser(token, userMaria.name, chatRoom);
+
+            expect(chatRoom.users.length).to.be.equal(2);
+            expect(chatRoom.users[1].name).to.be.equal(userMaria.name);
+        });
     });
 
     describe('getUser', () => {

@@ -8,7 +8,8 @@ import '../libs/deparam';
 
 const errors = {
     invalid: 'Name and room are not valid.',
-    user_exists: 'User already exists in this room.'
+    user_exists: 'User already exists in this room.',
+    wrong_password: 'Wrong password! This room is protected.'
 };
 
 class LobbySocket {
